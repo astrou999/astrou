@@ -1,0 +1,10 @@
+{
+    "chainName": "BNB Smart Chain Mainnet",
+    "chainId": "web3.utils.toHex(56)",
+    "nativeCurrency": { 
+        "name": "BSC", 
+        "decimals": 18, 
+        "symbol": "BSC"
+    },
+    "rpcUrls": ["https://bsc-dataseed1.ninicoin.io"]
+}

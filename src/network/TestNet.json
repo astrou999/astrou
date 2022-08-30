@@ -1,0 +1,10 @@
+{
+    "chainName": "BSC TestNet",
+    "chainId": "web3.utils.toHex(97)",
+    "nativeCurrency": { 
+        "name": "BSC Test", 
+        "decimals": 18, 
+        "symbol": "BSC"
+    },
+    "rpcUrls": ["https://data-seed-prebsc-1-s1.binance.org:8545"]
+}
