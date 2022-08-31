@@ -70,15 +70,16 @@ function PlayPage() {
 
   useEffect(() => {
     if(accountAddress !== '' && Object.keys(astToken).length !== 0){
-      console.log("masuk");
       getAddressBalance()
     }
   },[accountAddress, astToken])
 
   async function checkActiveAccount() {
     let activeAccount = await web3.eth.getAccounts()
-    setAccountAddress(activeAccount[0]);
-    setIsConnected(true)
+    if(activeAccount[0]){
+      setAccountAddress(activeAccount[0]);
+      setIsConnected(true)
+    }
   }
 
   async function getAddressBalance() {
