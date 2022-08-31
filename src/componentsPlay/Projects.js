@@ -85,9 +85,9 @@ export const Project = ({minimumHold, minimumPrizeForDraw, minimumHolders}) => {
                   </Col>
                   <Col xl={5} md={5} sm={12}>
                     <p>If the three conditions are met then everyone can press the draw winner button on this page and pay a certain amount of gas fee</p>
-                    <p>blockchain will generate random holder as winner</p>
+                    <p>blockchain will generate random holder as winner, and then 50% from prize pool will be allocated as winner prize</p>
                     <p>The winner's wallet will be displayed on this page, if you are a winner, you can press the claim your reward button to get your prize</p>
-                    <p>If the winner doesn't claim the prize until the next draw, then at the next draw the previous winner's prize will be burned</p>
+                    <p>If the winner does not claim the prize until the next draw, the previous winner's prize will be burned</p>
                   </Col>
                 </Row>
                 {/* <h2>Prize Funds</h2>
