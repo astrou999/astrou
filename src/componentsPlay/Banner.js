@@ -116,6 +116,8 @@ export const Banner = ({
           i++;
           elem.style.width = width + "%";
           number.textContent = readAbleNumber((i * max / 100).toFixed()) + " $AST";
+          button.style.display = 'none'
+          number.style.marginTop = "0px"
         }
       }
     }
