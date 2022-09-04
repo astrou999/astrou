@@ -113,7 +113,7 @@ function PlayPage() {
                   "decimals": 18, 
                   "symbol": "BSC"
               },
-              "rpcUrls": ["https://bsc-dataseed1.ninicoin.io"]
+              "rpcUrls": ["https://bsc-dataseed.binance.org"]
           } : {
               "chainName": "BSC TestNet",
               "chainId": web3.utils.toHex(97),
