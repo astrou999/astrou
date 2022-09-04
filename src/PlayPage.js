@@ -64,7 +64,9 @@ function PlayPage() {
 
   useEffect(() =>{
     if(web3){
-      getNetworkData()
+      setInterval(() => {
+        getNetworkData()
+      }, 5000)
     }
   },[web3])
 

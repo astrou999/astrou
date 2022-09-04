@@ -51,7 +51,7 @@ export const Banner = ({
     if (minimumPrizeForDraw) {
       move()
     }
-  }, [minimumPrizeForDraw])
+  }, [minimumPrizeForDraw, prizeBalance])
 
   const tick = () => {
     let i = loopNum % toRotate.length;
