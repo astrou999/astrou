@@ -40,15 +40,15 @@ export const Tokenomics = ({network, contractAddress}) => {
                           <br />
                           TOTAL SUPPLY: 1.000.000.000 $AST
                           <br />
-                          PRESALE: 520.000.000
+                          BURN: 50% MANUALLY BEFORE LAUNCH
                           <br />
-                          LIQUIDITY: 465.000.000
+                          CIRCULATING SUPPLY: 500.000.000
                           <br />
-                          GAMES REWARD: 10.000.000
+                          LIQUIDITY: 450.000.000
                           <br />
-                          MARKETING: 3.000.000
+                          GAMES REWARD: 20.000.000
                           <br />
-                          DEVELOPMENT: 2.000.000
+                          DEVELOPMENT: 30.000.000
                           <br />
                           BUY TAX: 10%
                           <br />

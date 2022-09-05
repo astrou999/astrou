@@ -504,7 +504,7 @@ contract ASTROUNAUT is Context, IERC20, Ownable {
     bool public swapAndLiquifyEnabled = true;
     
     uint256 public minimumHold = 1 * 10**5 * 10**9;
-    uint256 private numTokensSellToAddToLiquidity = 5 * 10**7 * 10**9;
+    uint256 private numTokensSellToAddToLiquidity = 1 * 10**7 * 10**9;
     
     event SaveToTreasuryWallet(address indexed from, address indexed to, uint256 value);
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
@@ -524,8 +524,8 @@ contract ASTROUNAUT is Context, IERC20, Ownable {
     constructor () public {
         _balances[_msgSender()] = _totalSupply;
         
-        // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
         //  Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -834,7 +834,7 @@ contract Treasury is Context, Ownable {
 
     uint256 private _winningPercentage = 50;
     uint256 private _minimumDraw = 5 * 10**6 * 10**9;
-    uint256 private _minimumHolders = 10;
+    uint256 private _minimumHolders = 15;
     uint256 private _timeRange = 1 hours;
 
     uint256 [] private _drawIdList;
@@ -970,10 +970,6 @@ contract Treasury is Context, Ownable {
             _savingWinnerBalance = 0;
             _totalPrizeBurned += winnerList[_lastWinnerId].winningAmount;
         }
-    }
-
-    function claimContractBalance() external onlyOwner {
-        IERC20(contractAddress).transfer(msg.sender, IERC20(contractAddress).balanceOf(address(this)));
     }
 
 
