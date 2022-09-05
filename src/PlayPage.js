@@ -18,6 +18,7 @@ function PlayPage() {
   const [astToken, setAST] = useState({})
   const [tokenAddress, setTokenAddress] = useState('')
   const [treasuryContract, setTreasuryContract] = useState({})
+  const [isNetworkOK, setIsNetworkOK] = useState(false)
 
 
   const [accountAddress, setAccountAddress] = useState('');
@@ -64,9 +65,7 @@ function PlayPage() {
 
   useEffect(() =>{
     if(web3){
-      setInterval(() => {
-        getNetworkData()
-      }, 5000)
+      getNetworkData()
     }
   },[web3])
 
@@ -75,6 +74,14 @@ function PlayPage() {
       getAddressBalance()
     }
   },[accountAddress, astToken])
+
+  useEffect(() => {
+    if(isNetworkOK){
+      setInterval(() => {
+        LoadTokenInfo()
+      }, 10000)
+    }
+  },[isNetworkOK])
 
   async function checkActiveAccount() {
     let activeAccount = await web3.eth.getAccounts()
@@ -98,8 +105,8 @@ function PlayPage() {
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: web3.utils.toHex(networkId) }]
       }).then(() => {
-        LoadTokenInfo()
         checkActiveAccount()
+        setIsNetworkOK(true)
       })
     } catch (err) {
         // This error code indicates that the chain has not been added to MetaMask
@@ -128,8 +135,8 @@ function PlayPage() {
           }
           ]
         }).then(() => {
-          LoadTokenInfo()
           checkActiveAccount()
+          setIsNetworkOK(true)
         }).catch(() => {
           Swal.fire({
             icon: 'error',
@@ -162,83 +169,92 @@ function PlayPage() {
 
 
   async function LoadTokenInfo() {
+
+      try {
+        const astrounaut = ASTROUNAUT.networks[networkId]
+
+        if (astrounaut) {
+          const astrounautContract = new web3.eth.Contract(ASTROUNAUT.abi, ASTROUNAUT.networks[networkId].address)
+          setTokenAddress(ASTROUNAUT.networks[networkId].address)
+          setAST(astrounautContract)
+  
+          let mHold = await astrounautContract.methods.minimumHold().call()
+          setMinimumHold(Number(web3.utils.fromWei(mHold, 'shannon')).toFixed())
+  
+          let holders = await astrounautContract.methods.totalHolders().call()
+          setTotalHolders(holders)
+  
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Astrounaut Contract not deployed to detect network',
+          })
+        }
+  
+        const treasury = TREASURY.networks[networkId]
+  
+        if (treasury) {
+          const tContract = new web3.eth.Contract(TREASURY.abi, TREASURY.networks[networkId].address,)
+          setTreasuryContract(tContract)
+  
+          let pzBalance = await tContract.methods.getBalance().call()
+          setPrizeBalance(Number(web3.utils.fromWei(pzBalance, 'shannon')).toFixed())
+  
+          let winnerAddr = await tContract.methods.lastWinnerAddress().call()
+          setWinnerAddress(winnerAddr)
+  
+          let mBDraw = await tContract.methods.minimumBalanceToDraw().call()
+          setminimumPrizeForDraw(Number(web3.utils.fromWei(mBDraw, 'shannon')).toFixed())
+  
+          let timeDraw = await tContract.methods.lastWinnerId().call()
+          setLastDrawTime(timeDraw)
+  
+          let mHolders = await tContract.methods.minimumHolders().call()
+          setMinimumHolders(mHolders)
+  
+          let lastPrize = await tContract.methods.getWinnerDetail(timeDraw).call()
+          setLastPrize(Number(web3.utils.fromWei(lastPrize.winningAmount, 'shannon')).toFixed())
+          setIsLastPrizeClaimed(lastPrize.isClaimed)
+  
+          let lpClaimed = await tContract.methods.lastPrizeClaimed().call()
+          setLastPrizeClaimed(Number(web3.utils.fromWei(lpClaimed, 'shannon')).toFixed())
+  
+          let tPClaimed = await tContract.methods.totalPrizeClaimed().call()
+          setTotalPrizeClaimed(Number(web3.utils.fromWei(tPClaimed, 'shannon')).toFixed())
+  
+          let tPBurned = await tContract.methods.totalPrizeBurned().call()
+          setTotalPrizeBurned(Number(web3.utils.fromWei(tPBurned, 'shannon')).toFixed())
+  
+          let listIDClaimed = await tContract.methods.getListIdClaimed().call()
+  
+          let dataWinner = await Promise.all(listIDClaimed.map(async (winnerId) => {
+            let winner = await tContract.methods.getWinnerDetail(winnerId).call()
+            let winnerDetail = {
+              winnerId: winnerId,
+              isClaimed: winner.isClaimed,
+              winningAmount: Number(web3.utils.fromWei(winner.winningAmount, 'shannon')).toFixed(),
+              winnerAddress: winner.winnerAddress
+            }
+            return winnerDetail
+          }))
+          setWinnerList(dataWinner)
+  
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Astrounaut Contract not deployed to detect network',
+          })
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'There is problem with your connection, Use VPN and try again!!',
+        })
+      }
       
-      const astrounaut = ASTROUNAUT.networks[networkId]
-
-      if (astrounaut) {
-        const astrounautContract = new web3.eth.Contract(ASTROUNAUT.abi, ASTROUNAUT.networks[networkId].address)
-        setTokenAddress(ASTROUNAUT.networks[networkId].address)
-        setAST(astrounautContract)
-
-        let mHold = await astrounautContract.methods.minimumHold().call()
-        setMinimumHold(Number(web3.utils.fromWei(mHold, 'shannon')).toFixed())
-
-        let holders = await astrounautContract.methods.totalHolders().call()
-        setTotalHolders(holders)
-
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Astrounaut Contract not deployed to detect network',
-        })
-      }
-
-      const treasury = TREASURY.networks[networkId]
-
-      if (treasury) {
-        const tContract = new web3.eth.Contract(TREASURY.abi, TREASURY.networks[networkId].address,)
-        setTreasuryContract(tContract)
-
-        let pzBalance = await tContract.methods.getBalance().call()
-        setPrizeBalance(Number(web3.utils.fromWei(pzBalance, 'shannon')).toFixed())
-
-        let winnerAddr = await tContract.methods.lastWinnerAddress().call()
-        setWinnerAddress(winnerAddr)
-
-        let mBDraw = await tContract.methods.minimumBalanceToDraw().call()
-        setminimumPrizeForDraw(Number(web3.utils.fromWei(mBDraw, 'shannon')).toFixed())
-
-        let timeDraw = await tContract.methods.lastWinnerId().call()
-        setLastDrawTime(timeDraw)
-
-        let mHolders = await tContract.methods.minimumHolders().call()
-        setMinimumHolders(mHolders)
-
-        let lastPrize = await tContract.methods.getWinnerDetail(timeDraw).call()
-        setLastPrize(Number(web3.utils.fromWei(lastPrize.winningAmount, 'shannon')).toFixed())
-        setIsLastPrizeClaimed(lastPrize.isClaimed)
-
-        let lpClaimed = await tContract.methods.lastPrizeClaimed().call()
-        setLastPrizeClaimed(Number(web3.utils.fromWei(lpClaimed, 'shannon')).toFixed())
-
-        let tPClaimed = await tContract.methods.totalPrizeClaimed().call()
-        setTotalPrizeClaimed(Number(web3.utils.fromWei(tPClaimed, 'shannon')).toFixed())
-
-        let tPBurned = await tContract.methods.totalPrizeBurned().call()
-        setTotalPrizeBurned(Number(web3.utils.fromWei(tPBurned, 'shannon')).toFixed())
-
-        let listIDClaimed = await tContract.methods.getListIdClaimed().call()
-
-        let dataWinner = await Promise.all(listIDClaimed.map(async (winnerId) => {
-          let winner = await tContract.methods.getWinnerDetail(winnerId).call()
-          let winnerDetail = {
-            winnerId: winnerId,
-            isClaimed: winner.isClaimed,
-            winningAmount: Number(web3.utils.fromWei(winner.winningAmount, 'shannon')).toFixed(),
-            winnerAddress: winner.winnerAddress
-          }
-          return winnerDetail
-        }))
-        setWinnerList(dataWinner)
-
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Astrounaut Contract not deployed to detect network',
-        })
-      }
   }
 
   const drawWinner = async () => {
