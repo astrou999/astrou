@@ -44,7 +44,7 @@ function PlayPage() {
 
   // !metamask
   const network = process.env.REACT_APP_NETWORK
-  const networkId = network === "MAINNET" ? 56 : 97
+  const networkId = network === "MAINNET" ? 56 : 80001
 
   const [web3, setWeb3] = useState(null)
   const [isConnected, setIsConnected] = useState(false);
@@ -124,14 +124,14 @@ function PlayPage() {
               },
               "rpcUrls": ["https://bsc-dataseed.binance.org"]
           } : {
-              "chainName": "BSC TestNet",
-              "chainId": web3.utils.toHex(97),
+              "chainName": "MATIC TestNet",
+              "chainId": web3.utils.toHex(80001),
               "nativeCurrency": { 
-                  "name": "BSC Test", 
+                  "name": "MATIC TEST", 
                   "decimals": 18, 
-                  "symbol": "BSC"
+                  "symbol": "MATIC"
               },
-              "rpcUrls": ["https://data-seed-prebsc-1-s1.binance.org:8545"]
+              "rpcUrls": ["https://rpc-mumbai.maticvigil.com/"]
           }
           ]
         }).then(() => {
@@ -213,8 +213,8 @@ function PlayPage() {
           let mHolders = await tContract.methods.minimumHolders().call()
           setMinimumHolders(mHolders)
   
-          let lastPrize = await tContract.methods.getWinnerDetail(timeDraw).call()
-          setLastPrize(Number(web3.utils.fromWei(lastPrize.winningAmount, 'shannon')).toFixed())
+          let lastPrize = await tContract.methods.getWinnerAmount(timeDraw).call()
+          setLastPrize(Number(web3.utils.fromWei(lastPrize, 'shannon')).toFixed())
           setIsLastPrizeClaimed(lastPrize.isClaimed)
   
           let lpClaimed = await tContract.methods.lastPrizeClaimed().call()
@@ -229,12 +229,14 @@ function PlayPage() {
           let listIDClaimed = await tContract.methods.getListIdClaimed().call()
   
           let dataWinner = await Promise.all(listIDClaimed.map(async (winnerId) => {
-            let winner = await tContract.methods.getWinnerDetail(winnerId).call()
+            let winnerAddress = await tContract.methods.getWinnerAddress(winnerId).call()
+            let winnerAmount = await tContract.methods.getWinnerAmount(winnerId).call()
+            let winnerStatus = await tContract.methods.getWinnerStatus(winnerId).call()
             let winnerDetail = {
               winnerId: winnerId,
-              isClaimed: winner.isClaimed,
-              winningAmount: Number(web3.utils.fromWei(winner.winningAmount, 'shannon')).toFixed(),
-              winnerAddress: winner.winnerAddress
+              isClaimed: winnerStatus,
+              winningAmount: Number(web3.utils.fromWei(winnerAmount, 'shannon')).toFixed(),
+              winnerAddress: winnerAddress
             }
             return winnerDetail
           }))
@@ -248,11 +250,13 @@ function PlayPage() {
           })
         }
       } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'There is problem with your connection, Use VPN and try again!!',
-        })
+        console.log(error);
+        alert(error)
+        // Swal.fire({
+        //   icon: 'error',
+        //   title: 'Oops...',
+        //   text: 'There is problem with your connection, Use VPN and try again!!',
+        // })
       }
       
   }
